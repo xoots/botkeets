@@ -1,0 +1,1 @@
+{"version":3,"file":"rbac.d.ts","sourceRoot":"","sources":["../../../src/app-infra/authority/rbac.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,kBAAkB,EAAE,MAAM,gBAAgB,CAAC;AASrE,wBAAgB,cAAc,CAAC,IAAI,EAAE,kBAAkB,EAAE,MAAM,EAAE,eAAe,GAAG,OAAO,CAEzF"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"anchor-context.js","sourceRoot":"","sources":["../../src/reasoning/anchor-context.ts"],"names":[],"mappings":"AAAA,MAAM,UAAU,2BAA2B,CAAC,iBAAyB,EAAE,UAAkB;IACvF,IAAI,UAAU,IAAI,CAAC;QAAE,OAAO,iBAAiB,CAAC;IAC9C,OAAO,IAAI,CAAC,GAAG,CAAC,iBAAiB,EAAE,KAAK,CAAC,CAAC;AAC5C,CAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"copaw-migration.d.ts","sourceRoot":"","sources":["../src/copaw-migration.ts"],"names":[],"mappings":"AAEA,wBAAgB,sBAAsB,IAAI,OAAO,CAA0C;AAC3F,wBAAgB,eAAe,CAAC,MAAM,EAAE,MAAM,EAAE,IAAI,EAAE,MAAM,GAAG,IAAI,CAAG;AACtE,wBAAgB,0BAA0B,IAAI,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,CAAe;AACpF,wBAAgB,sBAAsB,IAAI,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,CAAe"}

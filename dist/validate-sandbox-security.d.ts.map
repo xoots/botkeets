@@ -1,0 +1,1 @@
+{"version":3,"file":"validate-sandbox-security.d.ts","sourceRoot":"","sources":["../src/validate-sandbox-security.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,kCAAkC,CAAC;AAsCvE,wBAAgB,sBAAsB,CAAC,QAAQ,EAAE,MAAM,GAAG,MAAM,CAY/D;AAED,wBAAgB,2BAA2B,CAAC,aAAa,EAAE,MAAM,GAAG,MAAM,CAoBzE;AAkCD,wBAAgB,qBAAqB,CAAC,MAAM,EAAE,cAAc,EAAE,GAAG,cAAc,EAAE,CA2BhF"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"control-action-dispatcher.d.ts","sourceRoot":"","sources":["../src/control-action-dispatcher.ts"],"names":[],"mappings":"AACA,OAAO,EACL,KAAK,oBAAoB,EACzB,KAAK,mBAAmB,EACzB,MAAM,4BAA4B,CAAC;AACpC,OAAO,EAAmB,KAAK,eAAe,EAAE,MAAM,uBAAuB,CAAC;AAiC9E,wBAAgB,qBAAqB,CACnC,GAAG,EAAE,oBAAoB,EACzB,QAAQ,GAAE,eAAiC,GAC1C,mBAAmB,CAsDrB"}

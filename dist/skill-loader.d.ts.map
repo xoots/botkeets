@@ -1,0 +1,1 @@
+{"version":3,"file":"skill-loader.d.ts","sourceRoot":"","sources":["../src/skill-loader.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAKH,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,mBAAmB,CAAC;AAQhD,wBAAgB,SAAS,CAAC,IAAI,EAAE,MAAM,GAAG,MAAM,CAiB9C;AAED,wBAAgB,SAAS,CAAC,WAAW,EAAE,MAAM,GAAG,MAAM,CAMrD;AAED,wBAAgB,aAAa,CAAC,WAAW,EAAE,MAAM,GAAG,MAAM,CAKzD;AAED,wBAAgB,eAAe,IAAI,IAAI,CAEtC"}

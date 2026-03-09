@@ -1,0 +1,1 @@
+{"version":3,"file":"policy-api.d.ts","sourceRoot":"","sources":["../../../src/app-infra/authority/policy-api.ts"],"names":[],"mappings":"AAAA,OAAO,EAAuC,KAAK,YAAY,EAAE,MAAM,wBAAwB,CAAC;AAEhG,qBAAa,SAAS;IACpB,SAAS,IAAI,YAAY;IAIzB,YAAY,CAAC,KAAK,EAAE,OAAO,CAAC,YAAY,CAAC,GAAG,YAAY;CAGzD"}

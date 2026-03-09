@@ -1,0 +1,1 @@
+{"version":3,"file":"runtime-capability-store.js","sourceRoot":"","sources":["../src/runtime-capability-store.ts"],"names":[],"mappings":"AAEA,IAAI,6BAA6B,GAAqC,IAAI,CAAC;AAE3E,MAAM,UAAU,4BAA4B,CAAC,QAAmC;IAC9E,6BAA6B,GAAG,QAAQ,CAAC;AAC3C,CAAC;AAED,MAAM,UAAU,oCAAoC;IAClD,OAAO,6BAA6B,CAAC;AACvC,CAAC"}

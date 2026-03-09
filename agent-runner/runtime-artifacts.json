@@ -1,0 +1,7 @@
+{
+  "claude": "index.js",
+  "openrouter": "index-openrouter.js",
+  "dashscope": "index-dashscope.js",
+  "deepseek": "index-deepseek.js",
+  "ollama": "index-ollama.js"
+}

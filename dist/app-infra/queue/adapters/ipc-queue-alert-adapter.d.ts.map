@@ -1,0 +1,1 @@
+{"version":3,"file":"ipc-queue-alert-adapter.d.ts","sourceRoot":"","sources":["../../../../src/app-infra/queue/adapters/ipc-queue-alert-adapter.ts"],"names":[],"mappings":"AAKA,OAAO,EAAE,iBAAiB,EAAE,cAAc,EAAE,MAAM,iBAAiB,CAAC;AAEpE,qBAAa,oBAAqB,YAAW,iBAAiB;IAC5D,gBAAgB,CAAC,KAAK,EAAE,cAAc,GAAG,IAAI;CAW9C"}
