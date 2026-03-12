@@ -1,0 +1,46 @@
+{
+  "_comment": "SWITCH PROVIDERS: change 'active_profile' to 'ollama' or 'qwen'",
+  "active_profile": "ollama",
+  "profiles": {
+    "ollama": {
+      "primary_provider": "ollama_cloud",
+      "fallback_provider": "ollama_local"
+    },
+    "qwen": {
+      "primary_provider": "qwen_lite",
+      "fallback_provider": "ollama_local"
+    }
+  },
+  "providers": {
+    "ollama_cloud": {
+      "host": "https://api.ollama.com",
+      "api_key_env": "OLLAMA_CLOUD_API_KEY",
+      "model": "qwen2.5-coder:7b",
+      "timeout_seconds": 60,
+      "type": "ollama"
+    },
+    "ollama_local": {
+      "host": "http://localhost:11434",
+      "api_key_env": null,
+      "model": "qwen2.5-coder:7b",
+      "timeout_seconds": 120,
+      "type": "ollama"
+    },
+    "qwen_lite": {
+      "host": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "api_key_env": "ALIBABA_API_KEY",
+      "model": "qwen-plus",
+      "timeout_seconds": 60,
+      "type": "openai_compat"
+    }
+  },
+  "cooldown_minutes": 45,
+  "rate_limit_keywords": [
+    "rate limit", "too many requests", "quota exceeded",
+    "upgrade", "free tier", "limit reached"
+  ],
+  "qa_pipeline": {
+    "trigger_after_n_commits": 3,
+    "trigger_after_minutes": 30
+  }
+}
