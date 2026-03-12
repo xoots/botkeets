@@ -26,7 +26,17 @@ PRD_FILE="${PRD_FILE:-$RALPH_ROOT/prd.json}"
 CLAUDE_MD="$RALPH_ROOT/CLAUDE.md"
 LOG_FILE="$RALPH_ROOT/ralph.log"
 
+# Map story IDs to their working directories
+declare -A STORY_DIRS=(
+  ["1"]="$RALPH_ROOT/qwencode-gemini-cli-fork"
+  ["2"]="$RALPH_ROOT/custom-orchestrator-agent"
+  ["3"]="$RALPH_ROOT/agent-management-hub"
+)
+
 log() { echo "[ralph $(date '+%H:%M:%S')] $*" | tee -a "$LOG_FILE"; }
+
+# Clean shutdown on Ctrl-C or kill
+trap 'log "Caught signal. Stopping cleanly."; exit 0' SIGINT SIGTERM
 
 # Require jq
 if ! command -v jq &>/dev/null; then
@@ -40,17 +50,18 @@ if ! command -v claude &>/dev/null; then
   exit 1
 fi
 
+# Bug 1 fix: use process substitution instead of pipe so `return` works in this shell
 get_next_story() {
   local done_ids
-  done_ids=$(jq -r '.done[]' "$PRD_FILE" 2>/dev/null || echo "")
-  jq -c '.stories[]' "$PRD_FILE" | while IFS= read -r story; do
+  done_ids=$(jq -r '.done[]' "$PRD_FILE" 2>/dev/null || true)
+  while IFS= read -r story; do
     local id
     id=$(echo "$story" | jq -r '.id')
     if ! echo "$done_ids" | grep -qx "$id"; then
       echo "$story"
-      return
+      return 0
     fi
-  done
+  done < <(jq -c '.stories[]' "$PRD_FILE")
 }
 
 mark_done() {
@@ -58,6 +69,23 @@ mark_done() {
   local tmp
   tmp=$(mktemp)
   jq --arg id "$story_id" '.done += [$id]' "$PRD_FILE" > "$tmp" && mv "$tmp" "$PRD_FILE"
+}
+
+# Retry wrapper: up to 3 attempts with 10s backoff
+run_with_retry() {
+  local attempt=1
+  local max_attempts=3
+  while [[ "$attempt" -le "$max_attempts" ]]; do
+    if "$@"; then
+      return 0
+    fi
+    if [[ "$attempt" -lt "$max_attempts" ]]; then
+      log "Attempt $attempt failed. Retrying in 10s..."
+      sleep 10
+    fi
+    attempt=$((attempt + 1))
+  done
+  return 1
 }
 
 total_stories=$(jq '.stories | length' "$PRD_FILE")
@@ -94,6 +122,14 @@ while true; do
   log "--- Loop $loop_count | Story $story_id/$total_stories: $story_title ---"
   log "Progress: $done_count/$total_stories stories done"
 
+  # Resolve working directory for this story
+  WORK_DIR="${STORY_DIRS[$story_id]:-$RALPH_ROOT}"
+  if [[ ! -d "$WORK_DIR" ]]; then
+    log "ERROR: Working dir not found for story $story_id: $WORK_DIR"
+    exit 1
+  fi
+  log "Working directory: $WORK_DIR"
+
   # Build the prompt for this story
   STORY_PROMPT="$(cat <<PROMPT
 Read CLAUDE.md for your rules, then work on this story:
@@ -105,29 +141,64 @@ Description: $story_desc
 Acceptance criteria: $story_acceptance
 
 Steps:
-1. Read the relevant repo in ralph/ to understand current state
+1. Read this repo to understand current state
 2. Plan the changes needed (Claude only — no execution yet)
 3. Spawn Maestro subagents via the qwencode CLI for execution tasks (use Alibaba Coder Lite)
 4. Run tests when done
 5. If tests pass, commit with message: [ralph] story-$story_id: $story_title
 6. If tests fail, fix and retry (max 3 attempts)
-7. Report: STORY DONE or STORY BLOCKED: <reason>
+7. End your response with exactly one of:
+   - STORY DONE
+   - STORY BLOCKED: <reason>
 
 CRITICAL: Only commit if tests pass. Do not scope-creep into other stories.
 PROMPT
 )"
 
-  log "Invoking Claude Code for story $story_id..."
-  if claude --print "$STORY_PROMPT" \
-    --system-prompt "$(cat "$CLAUDE_MD")" \
-    2>>"$LOG_FILE"; then
-    log "Claude finished story $story_id"
-    mark_done "$story_id"
-    log "Story $story_id marked done. Continuing..."
+  # Bug 4 fix: capture output and check for explicit STORY DONE/BLOCKED signal
+  CLAUDE_OUTPUT=$(mktemp)
+
+  log "Invoking Claude Code for story $story_id (working dir: $WORK_DIR)..."
+
+  invoke_claude() {
+    (
+      cd "$WORK_DIR"
+      # Bug 2 fix: --dangerously-skip-permissions for unattended runs
+      # Bug 3 fix: invoked from inside the story's working directory
+      # H1: --no-session-persistence for fresh context every loop
+      claude --print "$STORY_PROMPT" \
+        --system-prompt "$(cat "$CLAUDE_MD")" \
+        --dangerously-skip-permissions \
+        --no-session-persistence \
+        2>>"$LOG_FILE"
+    ) | tee "$CLAUDE_OUTPUT" | tee -a "$LOG_FILE"
+  }
+
+  if run_with_retry invoke_claude; then
+    # Bug 4 fix: only mark done if Claude explicitly reported success
+    if grep -q "STORY DONE" "$CLAUDE_OUTPUT"; then
+      log "Story $story_id complete."
+      mark_done "$story_id"
+      log "Story $story_id marked done. Continuing..."
+    elif grep -q "STORY BLOCKED" "$CLAUDE_OUTPUT"; then
+      blocked_reason=$(grep "STORY BLOCKED" "$CLAUDE_OUTPUT" | head -1)
+      log "Story $story_id BLOCKED: $blocked_reason"
+      log "Stopping loop. Fix the issue and rerun."
+      rm -f "$CLAUDE_OUTPUT"
+      exit 1
+    else
+      log "Story $story_id: no STORY DONE/BLOCKED signal in output. Treating as blocked."
+      log "Stopping loop. Check $LOG_FILE for Claude's last output."
+      rm -f "$CLAUDE_OUTPUT"
+      exit 1
+    fi
   else
-    log "ERROR: Claude exited non-zero on story $story_id. Check $LOG_FILE"
+    log "ERROR: Claude failed after 3 attempts on story $story_id. Check $LOG_FILE"
     log "Stopping loop. Fix the issue and rerun."
+    rm -f "$CLAUDE_OUTPUT"
     exit 1
   fi
+
+  rm -f "$CLAUDE_OUTPUT"
 
 done

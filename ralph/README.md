@@ -69,6 +69,8 @@ cd ~/my-agent-factory/ralph
 
 That's it. Leave the terminal open and go to sleep.
 
+> **Note:** The script runs with `--dangerously-skip-permissions` so Claude can edit files, run bash commands, and commit without pausing for your approval. This is required for unattended runs — only use this on your local machine or a trusted sandbox.
+
 **Tail the log from another terminal if you want to watch:**
 ```bash
 tail -f ~/my-agent-factory/ralph/ralph.log
