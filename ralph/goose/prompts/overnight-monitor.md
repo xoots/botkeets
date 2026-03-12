@@ -18,6 +18,7 @@ Safe actions (read-only + test-only):
 - Run test commands (e.g. `npm test`, `pytest`) — but only in a separate scratch env or dry-run mode
 - Report status every 30 minutes in this chat
 - Use Alibaba Qwen Lite (not Claude, not DeepSeek) for all test analysis
+- Run QA pipeline: `python ralph/goose/llm_router/qa_pipeline.py --auto` (uses Ollama Cloud → local fallback)
 
 ## Cost guard
 - Qwen Lite only for analysis — no Claude invocations from you overnight

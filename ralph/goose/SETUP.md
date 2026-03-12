@@ -87,6 +87,46 @@ In Goose, switch Worker model to **Alibaba Qwen Lite only**, then paste the morn
 
 ---
 
+## Ollama Router Setup (today's primary route)
+
+The LLM router uses **Ollama Cloud** as primary and **local Ollama** as fallback. This replaces the direct Qwen/DeepSeek calls for test analysis and report generation.
+
+```bash
+# 1. Set your Ollama Cloud API key (get from ollama.com → account)
+export OLLAMA_CLOUD_API_KEY=<your key>
+
+# 2. Make sure local Ollama is running (fallback)
+ollama serve
+ollama pull qwen2.5-coder:7b   # pull the model once
+
+# 3. Test the router
+python ralph/goose/llm_router/router.py --prompt "say hello in one word"
+```
+
+### Switching back to Qwen Lite (one-line change)
+
+```bash
+# Edit ralph/goose/llm_router/config.json
+# Change: "active_profile": "ollama"  →  "active_profile": "qwen"
+# That's it. Make sure ALIBABA_API_KEY is set.
+```
+
+### Running QA pipeline
+
+```bash
+# For whichever app Ralph is currently on:
+python ralph/goose/llm_router/qa_pipeline.py --auto
+
+# Or for a specific app:
+python ralph/goose/llm_router/qa_pipeline.py --app qwencode
+python ralph/goose/llm_router/qa_pipeline.py --app orchestrator
+python ralph/goose/llm_router/qa_pipeline.py --app agent-hub
+```
+
+Reports land in `ralph/goose/reports/<app>/`. Session state is saved so interrupted runs resume automatically.
+
+---
+
 ## Safety Notes
 
 - Goose never overrides Ralph's git commits — it only reads and tests
