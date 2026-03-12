@@ -68,7 +68,13 @@ mark_done() {
   local story_id="$1"
   local tmp
   tmp=$(mktemp)
-  jq --arg id "$story_id" '.done += [$id]' "$PRD_FILE" > "$tmp" && mv "$tmp" "$PRD_FILE"
+  if jq --arg id "$story_id" '.done += [$id]' "$PRD_FILE" > "$tmp"; then
+    mv "$tmp" "$PRD_FILE"
+  else
+    rm -f "$tmp"
+    log "ERROR: jq failed updating prd.json for story $story_id"
+    return 1
+  fi
 }
 
 # Retry wrapper: up to 3 attempts with 10s backoff
@@ -163,10 +169,10 @@ PROMPT
   invoke_claude() {
     (
       cd "$WORK_DIR"
-      # Bug 2 fix: --dangerously-skip-permissions for unattended runs
-      # Bug 3 fix: invoked from inside the story's working directory
-      # H1: --no-session-persistence for fresh context every loop
-      claude --print "$STORY_PROMPT" \
+      # --dangerously-skip-permissions: unattended tool use (no approval prompts)
+      # --no-session-persistence: fresh context every loop (no drift)
+      # timeout 600: hard kill if claude hangs >10 min (API stall protection)
+      timeout 600 claude --print "$STORY_PROMPT" \
         --system-prompt "$(cat "$CLAUDE_MD")" \
         --dangerously-skip-permissions \
         --no-session-persistence \
@@ -179,7 +185,8 @@ PROMPT
     if grep -q "STORY DONE" "$CLAUDE_OUTPUT"; then
       log "Story $story_id complete."
       mark_done "$story_id"
-      log "Story $story_id marked done. Continuing..."
+      log "Story $story_id marked done. Sleeping 5s before next loop..."
+    sleep 5
     elif grep -q "STORY BLOCKED" "$CLAUDE_OUTPUT"; then
       blocked_reason=$(grep "STORY BLOCKED" "$CLAUDE_OUTPUT" | head -1)
       log "Story $story_id BLOCKED: $blocked_reason"
