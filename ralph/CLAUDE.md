@@ -9,6 +9,7 @@ Rules (NEVER break these):
 - Use relative paths to the three repos.
 - Never bloat, drift, or add unrelated features.
 - When all stories are done, stop and say "FACTORY COMPLETE".
+- Memory: at the start of every loop run `/memory list`, review recent entries, and prune anything bloated or irrelevant. Never rely on auto-memory for decisions — always read prd.json and git history first as the single source of truth.
 
 Current tools available: my qwencode fork, Maestro, Alibaba Lite, DeepSeek (capped).
 
