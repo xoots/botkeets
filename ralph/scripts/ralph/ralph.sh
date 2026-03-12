@@ -1,11 +1,28 @@
 #!/usr/bin/env bash
 # Ralph Loop — autonomous story-by-story PRD executor
-# Usage: ./ralph.sh [path/to/prd.json]
+# Usage: ./ralph.sh [max_loops] [path/to/prd.json]
+#   max_loops  Max Claude invocations before stopping (default: unlimited)
+#   prd.json   Path to PRD file (default: ../../prd.json relative to this script)
+# Examples:
+#   ./ralph.sh          # run until all stories done
+#   ./ralph.sh 300      # cap at 300 loops (plenty for one night)
+#   ./ralph.sh 300 /path/to/custom-prd.json
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RALPH_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-PRD_FILE="${1:-$RALPH_ROOT/prd.json}"
+
+# Parse args: first numeric arg = max loops, first non-numeric = prd file
+MAX_LOOPS=0   # 0 = unlimited
+PRD_FILE=""
+for arg in "$@"; do
+  if [[ "$arg" =~ ^[0-9]+$ ]] && [[ "$MAX_LOOPS" -eq 0 ]]; then
+    MAX_LOOPS="$arg"
+  elif [[ -z "$PRD_FILE" ]]; then
+    PRD_FILE="$arg"
+  fi
+done
+PRD_FILE="${PRD_FILE:-$RALPH_ROOT/prd.json}"
 CLAUDE_MD="$RALPH_ROOT/CLAUDE.md"
 LOG_FILE="$RALPH_ROOT/ralph.log"
 
@@ -44,9 +61,21 @@ mark_done() {
 }
 
 total_stories=$(jq '.stories | length' "$PRD_FILE")
-log "Ralph starting. PRD: $PRD_FILE | Stories: $total_stories"
+loop_count=0
+if [[ "$MAX_LOOPS" -gt 0 ]]; then
+  log "Ralph starting. PRD: $PRD_FILE | Stories: $total_stories | Max loops: $MAX_LOOPS"
+else
+  log "Ralph starting. PRD: $PRD_FILE | Stories: $total_stories | Max loops: unlimited"
+fi
 
 while true; do
+  # Enforce loop cap
+  if [[ "$MAX_LOOPS" -gt 0 && "$loop_count" -ge "$MAX_LOOPS" ]]; then
+    log "Reached max loops ($MAX_LOOPS). Stopping. Rerun to continue."
+    exit 0
+  fi
+  loop_count=$((loop_count + 1))
+
   story=$(get_next_story)
 
   if [[ -z "$story" ]]; then
@@ -62,7 +91,7 @@ while true; do
   story_acceptance=$(echo "$story" | jq -r '.acceptance')
   done_count=$(jq '.done | length' "$PRD_FILE")
 
-  log "--- Story $story_id/$total_stories: $story_title ---"
+  log "--- Loop $loop_count | Story $story_id/$total_stories: $story_title ---"
   log "Progress: $done_count/$total_stories stories done"
 
   # Build the prompt for this story
