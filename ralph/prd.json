@@ -1,0 +1,24 @@
+{
+  "title": "Finish My Full Agent Factory (Claude + Qwen + Hub)",
+  "stories": [
+    {
+      "id": "1",
+      "title": "Finish qwencode/gemini-cli fork",
+      "description": "Claude planner + Maestro subagent spawn + Alibaba Qwen workers fully working. Integrate my existing Claude integration and Maestro fork. Test with simple agent run.",
+      "acceptance": "CLI runs with Claude planning and Qwen executing. Maestro spawns subagents. Alibaba Lite key works."
+    },
+    {
+      "id": "2",
+      "title": "Finish custom orchestrator agent",
+      "description": "Claude writes micro-tasks and dispatches via the new finished CLI. Use my existing orchestration logic.",
+      "acceptance": "Orchestrator can take a high-level task, break it into micro-tasks, and run them autonomously."
+    },
+    {
+      "id": "3",
+      "title": "Finish agent management hub",
+      "description": "Paperclip AI Hub + Trigger.dev executions + Mastra framework. Dashboard tracks all runs, costs, status. Hook into the new orchestrator and CLI.",
+      "acceptance": "Hub dashboard shows live runs of the other two projects. Zero-manual orchestration."
+    }
+  ],
+  "done": []
+}
